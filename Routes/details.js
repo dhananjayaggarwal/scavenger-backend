@@ -72,18 +72,21 @@ router.post("/customerForm", (req, res, next) => {
 					
 					if(err2) return res.status(500).json({message: "Error while inserting data in send table"});
 					
+					con.query(`INSERT INTO notification_send (nid, bid, viewed) VALUES ('${nid}','0', '0')`, (err, data) => {
 					
+						
+					})
 					
 					
 					con.query(`SELECT * FROM branches where pincodes LIKE "%,${pincode},%"`, (err, data) => {
 						
-					//TODO send socket notif (nid will be sent along with data) to all users in the room of pincode
-					io.to(pincode).to("admin").emit('notification', notif, nid);
-					
-						return res.status(200).json({
-						message: "success",
-						data: data
-				  });
+						//TODO send socket notif (nid will be sent along with data) to all users in the room of pincode
+						io.to(pincode).to("admin").emit('notification', notif, nid);
+						
+							return res.status(200).json({
+							message: "success",
+							data: data
+					  });
 						
 					})
 					
