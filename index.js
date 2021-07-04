@@ -13,6 +13,27 @@ var con = config.con;
 const port = process.env.PORT || 3000
 
 
+const server = app.listen(port, () => {
+	con.connect((err) => {
+  if(err){
+    console.log('Error connecting to Db');
+    return;
+  }
+  console.log('Connection established');
+});
+  console.log(`Example app listening at http://localhost:${port}`)
+})
+
+/*
+const io = require('socket.io')(server, {cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+*/
+
+const io = require('./socket.js').init(server);
+
 
 const mysql = require('mysql')
 
@@ -41,22 +62,7 @@ app.get('/', (req, res) => {
   res.json("Hello World")
 })
 
-const server = app.listen(port, () => {
-	con.connect((err) => {
-  if(err){
-    console.log('Error connecting to Db');
-    return;
-  }
-  console.log('Connection established');
-});
-  console.log(`Example app listening at http://localhost:${port}`)
-})
 
-const io = require('socket.io')(server, {cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-});
 
 io.on('connection', socket => {
     console.log('Socket: client connected');
@@ -65,11 +71,33 @@ io.on('connection', socket => {
 	
 	socket.on('join', data => {
         console.log(data); // data = { pincodes: [String, ...]}
-		let pincodes = data.pincodes;
+		let bid = data.bid;
+		let role = data.role;
+		let pincodes = [];
+		if(role=="BRANCH"){
+			sql_query = `SELECT * FROM branches WHERE bid="${bid}";`;
+			con.query(sql_query, (err,branchData) => {
+			  if(err) {
+				  return ;
+			  } 
+				
+				if(branchData.length > 0){
+					let pc = branchData[0].pincodes.split(",");
+					pincodes = pc.slice(1, pc.length-1);
+					pincodes.forEach( pincode => {
+						socket.join(pincode);
+					});
+					
+				}
+			
+			});
+			
+		}else if(role=="ADMIN"){
+			socket.join("admin");
+		}  
+		  
 		
-		pincodes.forEach( pincode => {
-			socket.join(pincode);
-		});
+		console.log(socket.adapter.rooms)
           
     });
 	

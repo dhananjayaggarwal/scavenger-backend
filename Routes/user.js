@@ -28,11 +28,20 @@ const router = express.Router();
 					process.env.ACCESS_TOKEN_SECRET,
 					{ expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_HOURS }
 				  );
+				  
+				  /*
+				  let pincodes = [];
+				  if(fetchedUser.role=="BRANCH"){
+					let pc = fetchedUser.pincodes.split(",");
+					pincodes = pc.slice(1, pc.length-1);
+				  }
+				  */
+				  
 				  res.status(200).json({
 					token: token,
 					expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_SECONDS,
 					userId: fetchedUser.uid,
-					role: fetchedUser.role
+					role: fetchedUser.role,
 				  });
 			}
 			else{
