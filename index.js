@@ -32,11 +32,16 @@ app.use("/api/details", detailsRouter)
 app.use("/api/user", userRoutes);
 
 
+
+//Basically two type of events we need in socket: 1. When post customerData comes, emit event to users, 2. When user saw notificatin then event emitted by frontend
+//While on socket connection, we can store username or uid as id of connection
+
+
 app.get('/', (req, res) => {
   res.json("Hello World")
 })
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
 	con.connect((err) => {
   if(err){
     console.log('Error connecting to Db');
@@ -46,3 +51,32 @@ app.listen(port, () => {
 });
   console.log(`Example app listening at http://localhost:${port}`)
 })
+
+const io = require('socket.io')(server, {cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', socket => {
+    console.log('Socket: client connected');
+	
+	socket.emit('connection', null);
+	
+	socket.on('join', data => {
+        console.log(data); // data = { pincodes: [String, ...]}
+		let pincodes = data.pincodes;
+		
+		pincodes.forEach( pincode => {
+			socket.join(pincode);
+		});
+          
+    });
+	
+	socket.on('disconnect', () => {
+		console.log("disconnect");
+	   socket.removeAllListeners();
+	});
+});
+
+
