@@ -70,7 +70,7 @@ io.on('connection', socket => {
 	socket.emit('connection', null);
 	
 	socket.on('join', data => {
-        console.log(data); // data = { pincodes: [String, ...]}
+        console.log("join ka data aaya", data); // data = { pincodes: [String, ...]}
 		let bid = data.bid;
 		let role = data.role;
 		let pincodes = [];

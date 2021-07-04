@@ -10,12 +10,24 @@ const router = express.Router();
   router.get("/checkLogin", checkAuth, (req, res, next) => {
 	  res.status(200).json(req.userData);
   });
+  
+  router.get("/pendingNotifications", checkAuth, (req, res, next) => {
+	  let bid = req.userData.branchId;
+	  con.query(`SELECT * FROM notification WHERE nid IN (SELECT nid from notification_send WHERE bid = "${bid}" AND viewed = '0');` ,(err,notificationList) =>{
+					  if(err) return res.status(500).json({message: "SQl query failed", error: err});
+					  
+					 return res.status(200).json({
+						success: "true",
+						pendingNotifications: notificationList
+						});
+				  })
+  });
 
   router.post("/login", (req, res, next) => {
 	  let fetchedUser;
 	  //call db to fetch user 
 	  //let sql_query = 'SELECT * FROM users WHERE username = "'+req.body.username + '";';
-	  
+	  console.log(req.body);
 	  let sql_query = `SELECT * FROM users WHERE username = "${req.body.username}";`;
 	  
 	  con.query(sql_query, (err,user) => {
@@ -44,6 +56,7 @@ const router = express.Router();
 					  if(err) return res.status(500).json({message: "SQl query failed"});
 					  
 					 return res.status(200).json({
+						success: "true",
 						token: token,
 						expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_SECONDS,
 						userId: fetchedUser.uid,

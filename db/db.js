@@ -3,7 +3,7 @@ var mysql = require('mysql');
 config = {
   host: 'remotemysql.com',
   user: 'MpM3eL80L3',
-  password: 'T2K3NoRvu0',
+  password: 'WaLhTDchVW',
   database: 'MpM3eL80L3'
 }
 
