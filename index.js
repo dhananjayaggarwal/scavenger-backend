@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000
 
 
 const server = app.listen(port, () => {
-	con.connect((err) => {
+	con.getConnection((err) => {
   if(err){
     console.log('Error connecting to Db');
     return;

@@ -7,14 +7,16 @@ config = {
   database: 'MpM3eL80L3'
 }
 
-var con = mysql.createConnection(config);
+var con = mysql.createPool(config);
 
+/*
 con.connect(function(err) {
     if (err) throw err;
 	
 	console.log('connected successfully to DB.');
 });
+*/
 
 module.exports = {
-     con : mysql.createConnection(config) 
+     con : mysql.createPool(config) 
 };
