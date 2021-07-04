@@ -57,10 +57,12 @@ app.use("/api/user", userRoutes);
 //Basically two type of events we need in socket: 1. When post customerData comes, emit event to users, 2. When user saw notificatin then event emitted by frontend
 //While on socket connection, we can store username or uid as id of connection
 
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'build')));
 
-app.get('/', (req, res) => {
-  res.json("Hello World")
-})
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 
 
