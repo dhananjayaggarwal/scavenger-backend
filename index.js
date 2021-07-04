@@ -101,6 +101,22 @@ io.on('connection', socket => {
           
     });
 	
+	
+	socket.on('notification_received', (data) => {
+		console.log(data); //{ "bid": "1", "nid": notification_id }
+		//mark notification_send table as viewed = 1 where bid = bid and nid = nid
+		sql_query = `UPDATE notification_send set viewed = "1" WHERE bid = ${data.bid} AND nid = ${data.nid}`;
+		console.log(sql_query);
+			con.query(sql_query, (err,sqlData) => {
+			  if(err) {
+				  console.log(err);
+				  return ;
+			  } 
+				console.log(sqlData);
+			
+			});
+	});
+	
 	socket.on('disconnect', () => {
 		console.log("disconnect");
 	   socket.removeAllListeners();

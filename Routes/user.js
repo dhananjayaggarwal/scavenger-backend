@@ -1,11 +1,15 @@
 const express = require('express')
 
 const jwt = require("jsonwebtoken");
+const checkAuth = require("../middlewares/check-auth");
 
 var config = require('../db/db.js');
 var con = config.con;
 const router = express.Router();
 
+  router.get("/checkLogin", checkAuth, (req, res, next) => {
+	  res.status(200).json(req.userData);
+  });
 
   router.post("/login", (req, res, next) => {
 	  let fetchedUser;
@@ -16,7 +20,7 @@ const router = express.Router();
 	  
 	  con.query(sql_query, (err,user) => {
 	  if(err) {
-		  res.status(500).json({message: "SQl query failed"});
+		  return res.status(500).json({message: "SQl query failed"});
 	  } 
 		
 		if(user.length > 0){
@@ -36,13 +40,18 @@ const router = express.Router();
 					pincodes = pc.slice(1, pc.length-1);
 				  }
 				  */
+				  con.query(`SELECT * FROM notification WHERE nid IN (SELECT nid from notification_send WHERE bid = "${fetchedUser.bid}" AND viewed = '0');` ,(err,notificationList) =>{
+					  if(err) return res.status(500).json({message: "SQl query failed"});
+					  
+					 return res.status(200).json({
+						token: token,
+						expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_SECONDS,
+						userId: fetchedUser.uid,
+						role: fetchedUser.role,
+						pendingNotifications: notificationList
+						});
+				  })
 				  
-				  res.status(200).json({
-					token: token,
-					expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_SECONDS,
-					userId: fetchedUser.uid,
-					role: fetchedUser.role,
-				  });
 			}
 			else{
 				res.status(401).json({
